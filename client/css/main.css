@@ -1,0 +1,124 @@
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-focus-ring-color: transparent;
+}
+
+*:focus {
+    outline: 0 !important;
+    outline-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+}
+
+button,
+input,
+select,
+textarea {
+    outline: 0 !important;
+    outline-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    box-shadow: none !important;
+}
+
+
+/* =========================================
+   1. COLOR PALETTE (CSS VARIABLES)
+   ========================================= */
+:root {
+  /* Dark Theme Colors */
+  --bg-main: #242424;          /* Deep slate for the body background */
+  --bg-surface: #3d3d3d;       /* Lighter slate for navbar and content cards */
+  --bg-footer: #161616;        /* Near black for the bottom bar */
+  
+  --text-primary: #f9fafb;     /* Crisp off-white for main text and active tabs */
+  --text-secondary: #9ca3af;   /* Muted gray for inactive buttons and footer text */
+  
+  --accent-color: #3b82f6;     /* Vibrant blue for the active button */
+  --hover-color: #636363;      /* Subtle highlight for hovering over buttons */
+  
+  --shadow-color: rgba(0, 0, 0, 0.5); /* Deeper shadow for dark mode */
+}
+
+/* =========================================
+   2. BASE STYLES
+   ========================================= */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  
+  /* Padding ensures content isn't hidden behind the fixed top/bottom bars */
+  padding-top: 100px; 
+  padding-bottom: 80px;
+}
+
+/* =========================================
+   3. TOP NAVBAR (FLOATING & ROUNDED)
+   ========================================= */
+.top-navbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-surface);
+  padding: 8px 12px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+}
+
+/* --- Navbar Buttons --- */
+.nav-btn {
+  border: none;
+  background-color: transparent;
+  padding: 10px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-secondary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-btn:hover {
+  background-color: var(--hover-color);
+  color: var(--text-primary);
+}
+
+.nav-btn.active {
+  background-color: var(--accent-color);
+  color: #ffffff; /* Keeping pure white here for maximum contrast */
+}
+
+/* =========================================
+   4. BOTTOM BAR
+   ========================================= */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--bg-footer);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 20px 0;
+  z-index: 1000;
+  border-top: 1px solid var(--hover-color); /* Adds a subtle separator line */
+}
+
+/* =========================================
+   5. DYNAMIC CONTENT SECTIONS
+   ========================================= */
+.content-section {
+  display: none; 
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  border-radius: 12px;
+}
+
+.content-section.active {
+  display: block; 
+}
