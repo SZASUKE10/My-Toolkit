@@ -1,34 +1,69 @@
 /* ============================================================
    GRAPH EDITOR STYLESHEET
-   Everything is scoped under #view-graph so it can never
+   Everything is scoped under .ge-wrap container so it can never
    leak into (or get broken by) the rest of your page.
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-
 /* ---------- design tokens: change colors once, everywhere updates ---------- */
-#view-graph{
-  --ge-ink:#e8edf4; --ge-mut:#8b98ab;
-  --ge-amber:#ffb02e; --ge-amber2:#ff8a3d; --ge-cyan:#41e0ff; --ge-coral:#ff5d5d;
-  --ge-line:#243040; --ge-line2:#35455c; --ge-panel:#131a24; --ge-panel2:#0d131c;
+/* 
+   COLOR SCHEME:
+   Each curve mode has its own accent color that appears on:
+   - Active tab highlight
+   - Curve line glow
+   - Handle outlines
+   - Playhead and value indicators
+   - Background glow
+*/
+.ge-wrap{
+  /* Base UI colors - SEMI AMOLED DARK THEME */
+  --ge-ink:#e8edf4;        /* Main text color */
+  --ge-mut:#8b98ab;        /* Muted/subtle text */
+  --ge-line:#1a2230;       /* Border/line color (darker for AMOLED) */
+  --ge-line2:#2a3848;      /* Brighter border on hover */
+  --ge-panel:#0a0f16;      /* Panel background (near-black for AMOLED) */
+  --ge-panel2:#05080c;     /* Darker panel gradient end */
+  
+  /* Mode-specific accent colors */
+  --ge-bezier:#41e0ff;     /* BLUE for Bezier mode */
+  --ge-elastic:#a855f7;    /* PURPLE for Elastic mode */
+  --ge-bounce:#ff5d5d;     /* RED for Bounce mode */
+  --ge-step:#ff8a3d;       /* ORANGE for Step mode */
+  --ge-custom:#ec4899;     /* PINK for Custom mode */
+  
+  /* Shared utility colors */
+  --ge-amber:#ffb02e;      /* Default accent (fallback) */
+  --ge-amber2:#ff8a3d;     /* Amber gradient end */
+  --ge-cyan:#41e0ff;       /* Cyan for highlights */
+  --ge-coral:#ff5d5d;      /* Coral/red for alerts */
+  
+  /* Current theme color - updated by JS when mode changes */
+  --ge-theme: var(--ge-bezier);
+  
   display:block; position:relative; overflow:hidden;
   padding:clamp(24px,4vw,52px) clamp(16px,4vw,44px) 100px;
-  background-color:#0a0e14;
+  /* Semi-AMOLED background with thin grid pattern */
+  background-color:#05080c;
   background-image:
-    radial-gradient(circle, rgba(200,220,255,.05) 1px, transparent 1.4px), /* dot grid */
-    radial-gradient(900px 480px at 85% 0%, rgba(65,224,255,.07), transparent 60%),
-    radial-gradient(800px 500px at 0% 100%, rgba(255,154,61,.06), transparent 60%);
-  background-size:26px 26px, auto, auto;
+    /* Thin grid lines - subtle transparent grid */
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+    /* Theme-colored glow that changes with mode */
+    radial-gradient(900px 480px at 85% 0%, rgba(65,224,255,0.08), transparent 60%),
+    radial-gradient(800px 500px at 0% 100%, rgba(255,154,61,0.06), transparent 60%);
+  background-size:30px 30px, 30px 30px, auto, auto;
+  background-position:0 0, 0 0, center, center;
   color:var(--ge-ink);
   font-family:'Barlow',sans-serif;
 }
 
-/* Two slow-drifting glow blobs behind everything (pure CSS ambience) */
-#view-graph::before,#view-graph::after{
+/* Two slow-drifting glow blobs behind everything - now use theme color */
+.ge-wrap::before,.ge-wrap::after{
   content:""; position:absolute; width:620px; height:620px; border-radius:50%;
   filter:blur(95px); pointer-events:none; z-index:0;
 }
-#view-graph::before{background:radial-gradient(circle,#ff9a3d,transparent 60%);opacity:.13;top:-230px;left:-170px;animation:geDrift1 16s ease-in-out infinite alternate;}
-#view-graph::after{background:radial-gradient(circle,#2fd4ff,transparent 60%);opacity:.10;bottom:-250px;right:-150px;animation:geDrift2 19s ease-in-out infinite alternate;}
+/* Left glow uses theme color (changes per mode) */
+.ge-wrap::before{background:radial-gradient(circle,var(--ge-theme),transparent 60%);opacity:.15;top:-230px;left:-170px;animation:geDrift1 16s ease-in-out infinite alternate;}
+/* Right glow uses theme color (changes per mode) */
+.ge-wrap::after{background:radial-gradient(circle,var(--ge-theme),transparent 60%);opacity:.12;bottom:-250px;right:-150px;animation:geDrift2 19s ease-in-out infinite alternate;}
 @keyframes geDrift1{to{transform:translate(80px,45px) scale(1.08)}}
 @keyframes geDrift2{to{transform:translate(-70px,-55px) scale(1.1)}}
 
@@ -41,12 +76,12 @@
 
 /* ---------- header ---------- */
 .ge-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}
-.ge-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--ge-amber);display:block;margin-bottom:6px}
+.ge-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--ge-theme);display:block;margin-bottom:6px}
 .ge-title{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:clamp(28px,4vw,44px);letter-spacing:.02em;margin:0;display:flex;align-items:center;line-height:1}
-.ge-title em{font-style:normal;color:var(--ge-amber);text-shadow:0 0 24px rgba(255,176,46,.45)}
+.ge-title em{font-style:normal;color:var(--ge-theme);text-shadow:0 0 24px rgba(255,176,46,.45)}
 .ge-badge{font-family:'JetBrains Mono',monospace;font-size:10px;border:1px solid var(--ge-line2);color:var(--ge-cyan);padding:3px 8px;border-radius:6px;margin-left:12px;letter-spacing:.15em}
 .ge-eq{display:inline-flex;gap:3px;align-items:flex-end;height:18px;margin-left:14px}
-.ge-eq i{width:3px;height:6px;background:var(--ge-amber);border-radius:2px;animation:geEq 1s ease-in-out infinite}
+.ge-eq i{width:3px;height:6px;background:var(--ge-theme);border-radius:2px;animation:geEq 1s ease-in-out infinite}
 .ge-eq i:nth-child(2){animation-delay:.18s;background:var(--ge-cyan)}
 .ge-eq i:nth-child(3){animation-delay:.36s}
 .ge-eq i:nth-child(4){animation-delay:.54s;background:var(--ge-cyan)}
@@ -60,8 +95,23 @@
   cursor:pointer;transition:all .18s ease}
 .ge-tab svg{width:15px;height:15px}
 .ge-tab:hover{color:var(--ge-ink);border-color:var(--ge-line2);transform:translateY(-2px)}
-.ge-tab.active{color:#1c1204;background:linear-gradient(135deg,var(--ge-amber),var(--ge-amber2));
-  border-color:transparent;box-shadow:0 4px 20px rgba(255,176,46,.35);transform:translateY(-2px)}
+
+/* Mode-specific active tab colors using data-mode attribute */
+/* When a tab with data-mode="bezier" is active, use blue gradient */
+.ge-tab[data-mode="bezier"].active{color:#0a1018;background:linear-gradient(135deg,var(--ge-bezier),#0ea5e9);
+  border-color:transparent;box-shadow:0 4px 20px rgba(65,224,255,.35);transform:translateY(-2px)}
+/* Elastic tab - purple gradient */
+.ge-tab[data-mode="elastic"].active{color:#1a0a18;background:linear-gradient(135deg,var(--ge-elastic),#c084fc);
+  border-color:transparent;box-shadow:0 4px 20px rgba(168,85,247,.35);transform:translateY(-2px)}
+/* Bounce tab - red gradient */
+.ge-tab[data-mode="bounce"].active{color:#1a0505;background:linear-gradient(135deg,var(--ge-bounce),#f87171);
+  border-color:transparent;box-shadow:0 4px 20px rgba(255,93,93,.35);transform:translateY(-2px)}
+/* Step tab - orange gradient */
+.ge-tab[data-mode="step"].active{color:#1a0f05;background:linear-gradient(135deg,var(--ge-step),#fb923c);
+  border-color:transparent;box-shadow:0 4px 20px rgba(255,138,61,.35);transform:translateY(-2px)}
+/* Custom tab - pink gradient */
+.ge-tab[data-mode="custom"].active{color:#1a0510;background:linear-gradient(135deg,var(--ge-custom),#f472b6);
+  border-color:transparent;box-shadow:0 4px 20px rgba(236,72,153,.35);transform:translateY(-2px)}
 
 /* ---------- shared panel look ---------- */
 .ge-panel{background:linear-gradient(180deg,var(--ge-panel),var(--ge-panel2));
@@ -71,7 +121,7 @@
 
 /* ---------- graph topbar ---------- */
 .ge-graph-topbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--ge-line)}
-.ge-chip{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.18em;color:var(--ge-amber);
+.ge-chip{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.18em;color:var(--ge-theme);
   border:1px solid rgba(255,176,46,.4);padding:4px 10px;border-radius:6px;background:rgba(255,176,46,.08)}
 .ge-readout{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ge-mut)}
 .ge-readout b{color:var(--ge-cyan);font-weight:600;margin-left:4px}
@@ -96,18 +146,18 @@
 .ge-chips{display:flex;flex-wrap:wrap;gap:7px}
 .ge-chipbtn{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.06em;padding:7px 12px;
   background:#0d141d;border:1px solid var(--ge-line);border-radius:8px;color:var(--ge-ink);cursor:pointer;transition:all .15s ease}
-.ge-chipbtn:hover{border-color:var(--ge-amber);color:var(--ge-amber);transform:translateY(-1px);box-shadow:0 3px 12px rgba(255,176,46,.15)}
+.ge-chipbtn:hover{border-color:var(--ge-theme);color:var(--ge-theme);transform:translateY(-1px);box-shadow:0 3px 12px rgba(255,176,46,.15)}
 .ge-chipbtn:active{transform:scale(.96)}
 
 /* ---------- sliders (custom-styled range inputs) ---------- */
 .ge-slider{display:block;margin:15px 0}
 .ge-slider .lab{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ge-mut)}
-.ge-slider .lab b{color:var(--ge-amber);font-family:'JetBrains Mono',monospace;font-size:12px}
+.ge-slider .lab b{color:var(--ge-theme);font-family:'JetBrains Mono',monospace;font-size:12px}
 .ge-slider input{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:#263140;outline:none;margin-top:9px;cursor:pointer}
 .ge-slider input::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
-  background:var(--ge-amber);border:3px solid #0f141c;box-shadow:0 0 10px rgba(255,176,46,.5);transition:transform .12s ease}
+  background:var(--ge-theme);border:3px solid #0f141c;box-shadow:0 0 10px rgba(255,176,46,.5);transition:transform .12s ease}
 .ge-slider input::-webkit-slider-thumb:hover{transform:scale(1.25)}
-.ge-slider input::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--ge-amber);border:3px solid #0f141c}
+.ge-slider input::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--ge-theme);border:3px solid #0f141c}
 
 /* ---------- OUT / IN segmented toggle ---------- */
 .ge-seg{display:flex;background:#0b1119;border:1px solid var(--ge-line);border-radius:9px;padding:3px;gap:3px;margin:14px 0 4px}
@@ -134,7 +184,7 @@
 /* ---------- transport ---------- */
 .ge-transport{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-top:18px;flex-wrap:wrap}
 .ge-play{width:46px;height:46px;border-radius:50%;border:none;flex:none;
-  background:linear-gradient(140deg,var(--ge-amber),var(--ge-amber2));color:#1c1204;
+  background:linear-gradient(140deg,var(--ge-theme),var(--ge-amber2));color:#1c1204;
   display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 20px rgba(255,176,46,.4);transition:transform .15s ease}
 .ge-play:hover{transform:scale(1.08)}
 .ge-play:active{transform:scale(.94)}
@@ -152,7 +202,7 @@
 .ge-durbar{position:relative;flex:1;min-width:140px;height:18px;cursor:pointer}
 .ge-durbar .rail{position:absolute;top:50%;left:0;right:0;height:5px;transform:translateY(-50%);
   background:#212c3b;border-radius:3px;overflow:hidden}
-.ge-durbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--ge-amber),var(--ge-amber2));border-radius:3px}
+.ge-durbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--ge-theme),var(--ge-amber2));border-radius:3px}
 .ge-durbar:hover .rail{height:7px}
 .ge-dursel{background:#111925;border:1px solid var(--ge-line);color:var(--ge-ink);border-radius:8px;
   padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;flex:none}
@@ -167,7 +217,7 @@
 .ge-preview-head h3::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ge-coral);
   box-shadow:0 0 10px var(--ge-coral);animation:geBlink 1.6s ease-in-out infinite}
 @keyframes geBlink{50%{opacity:.35}}
-.ge-prevval{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--ge-amber)}
+.ge-prevval{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--ge-theme)}
 .ge-prevval small{font-size:9px;color:var(--ge-mut);letter-spacing:.15em;margin-right:8px}
 
 .ge-prev-body{padding:22px 34px 14px}
@@ -196,5 +246,34 @@
   #geCanvas{height:330px}
 }
 @media (prefers-reduced-motion:reduce){
-  #view-graph::before,#view-graph::after,.ge-eq i,.ge-preview-head h3::before{animation:none}
+  .ge-wrap::before,.ge-wrap::after,.ge-eq i,.ge-preview-head h3::before{animation:none}
+}
+/* ============================================================
+   MODE-SPECIFIC COLOR OVERRIDES
+   Each mode uses its own accent color for UI elements
+   ============================================================ */
+
+/* Bezier mode - BLUE theme */
+.ge-wrap[data-mode="bezier"] {
+  --ge-theme: var(--ge-bezier);
+}
+
+/* Elastic mode - PURPLE theme */
+.ge-wrap[data-mode="elastic"] {
+  --ge-theme: var(--ge-elastic);
+}
+
+/* Bounce mode - RED theme */
+.ge-wrap[data-mode="bounce"] {
+  --ge-theme: var(--ge-bounce);
+}
+
+/* Step mode - ORANGE theme */
+.ge-wrap[data-mode="step"] {
+  --ge-theme: var(--ge-step);
+}
+
+/* Custom mode - PINK theme */
+.ge-wrap[data-mode="custom"] {
+  --ge-theme: var(--ge-custom);
 }
