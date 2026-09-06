@@ -6,10 +6,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
 
 /* ---------- design tokens: change colors once, everywhere updates ---------- */
+/* 
+   COLOR SCHEME:
+   Each curve mode has its own accent color that appears on:
+   - Active tab highlight
+   - Curve line glow
+   - Handle outlines
+   - Playhead and value indicators
+*/
 .ge-wrap{
-  --ge-ink:#e8edf4; --ge-mut:#8b98ab;
-  --ge-amber:#ffb02e; --ge-amber2:#ff8a3d; --ge-cyan:#41e0ff; --ge-coral:#ff5d5d;
-  --ge-line:#243040; --ge-line2:#35455c; --ge-panel:#131a24; --ge-panel2:#0d131c;
+  /* Base UI colors */
+  --ge-ink:#e8edf4;        /* Main text color */
+  --ge-mut:#8b98ab;        /* Muted/subtle text */
+  --ge-line:#243040;       /* Border/line color */
+  --ge-line2:#35455c;      /* Brighter border on hover */
+  --ge-panel:#131a24;      /* Panel background */
+  --ge-panel2:#0d131c;     /* Darker panel gradient end */
+  
+  /* Mode-specific accent colors */
+  --ge-bezier:#41e0ff;     /* BLUE for Bezier mode */
+  --ge-elastic:#a855f7;    /* PURPLE for Elastic mode */
+  --ge-bounce:#ff5d5d;     /* RED for Bounce mode */
+  --ge-step:#ff8a3d;       /* ORANGE for Step mode */
+  --ge-custom:#ec4899;     /* PINK for Custom mode */
+  
+  /* Shared utility colors */
+  --ge-amber:#ffb02e;      /* Default accent (fallback) */
+  --ge-amber2:#ff8a3d;     /* Amber gradient end */
+  --ge-cyan:#41e0ff;       /* Cyan for highlights */
+  --ge-coral:#ff5d5d;      /* Coral/red for alerts */
+  
   display:block; position:relative; overflow:hidden;
   padding:clamp(24px,4vw,52px) clamp(16px,4vw,44px) 100px;
   background-color:#0a0e14;
@@ -60,8 +86,23 @@
   cursor:pointer;transition:all .18s ease}
 .ge-tab svg{width:15px;height:15px}
 .ge-tab:hover{color:var(--ge-ink);border-color:var(--ge-line2);transform:translateY(-2px)}
-.ge-tab.active{color:#1c1204;background:linear-gradient(135deg,var(--ge-amber),var(--ge-amber2));
-  border-color:transparent;box-shadow:0 4px 20px rgba(255,176,46,.35);transform:translateY(-2px)}
+
+/* Mode-specific active tab colors using data-mode attribute */
+/* When a tab with data-mode="bezier" is active, use blue gradient */
+.ge-tab[data-mode="bezier"].active{color:#0a1018;background:linear-gradient(135deg,var(--ge-bezier),#0ea5e9);
+  border-color:transparent;box-shadow:0 4px 20px rgba(65,224,255,.35);transform:translateY(-2px)}
+/* Elastic tab - purple gradient */
+.ge-tab[data-mode="elastic"].active{color:#1a0a18;background:linear-gradient(135deg,var(--ge-elastic),#c084fc);
+  border-color:transparent;box-shadow:0 4px 20px rgba(168,85,247,.35);transform:translateY(-2px)}
+/* Bounce tab - red gradient */
+.ge-tab[data-mode="bounce"].active{color:#1a0505;background:linear-gradient(135deg,var(--ge-bounce),#f87171);
+  border-color:transparent;box-shadow:0 4px 20px rgba(255,93,93,.35);transform:translateY(-2px)}
+/* Step tab - orange gradient */
+.ge-tab[data-mode="step"].active{color:#1a0f05;background:linear-gradient(135deg,var(--ge-step),#fb923c);
+  border-color:transparent;box-shadow:0 4px 20px rgba(255,138,61,.35);transform:translateY(-2px)}
+/* Custom tab - pink gradient */
+.ge-tab[data-mode="custom"].active{color:#1a0510;background:linear-gradient(135deg,var(--ge-custom),#f472b6);
+  border-color:transparent;box-shadow:0 4px 20px rgba(236,72,153,.35);transform:translateY(-2px)}
 
 /* ---------- shared panel look ---------- */
 .ge-panel{background:linear-gradient(180deg,var(--ge-panel),var(--ge-panel2));
@@ -197,4 +238,43 @@
 }
 @media (prefers-reduced-motion:reduce){
   .ge-wrap::before,.ge-wrap::after,.ge-eq i,.ge-preview-head h3::before{animation:none}
+}
+/* ============================================================
+   MODE-SPECIFIC COLOR OVERRIDES
+   Each mode uses its own accent color for UI elements
+   ============================================================ */
+
+/* Bezier mode - BLUE theme */
+.ge-wrap[data-mode="bezier"] .ge-chip,
+.ge-wrap[data-mode="bezier"] .ge-readout b,
+.ge-wrap[data-mode="bezier"] .ge-toggle input {
+  --ge-amber: var(--ge-bezier);
+}
+
+/* Elastic mode - PURPLE theme */
+.ge-wrap[data-mode="elastic"] .ge-chip,
+.ge-wrap[data-mode="elastic"] .ge-readout b,
+.ge-wrap[data-mode="elastic"] .ge-toggle input {
+  --ge-amber: var(--ge-elastic);
+}
+
+/* Bounce mode - RED theme */
+.ge-wrap[data-mode="bounce"] .ge-chip,
+.ge-wrap[data-mode="bounce"] .ge-readout b,
+.ge-wrap[data-mode="bounce"] .ge-toggle input {
+  --ge-amber: var(--ge-bounce);
+}
+
+/* Step mode - ORANGE theme */
+.ge-wrap[data-mode="step"] .ge-chip,
+.ge-wrap[data-mode="step"] .ge-readout b,
+.ge-wrap[data-mode="step"] .ge-toggle input {
+  --ge-amber: var(--ge-step);
+}
+
+/* Custom mode - PINK theme */
+.ge-wrap[data-mode="custom"] .ge-chip,
+.ge-wrap[data-mode="custom"] .ge-readout b,
+.ge-wrap[data-mode="custom"] .ge-toggle input {
+  --ge-amber: var(--ge-custom);
 }

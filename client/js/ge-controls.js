@@ -34,10 +34,18 @@ window.GEControls = (function () {
   /* ----- mode tabs ----- */
   function setMode(m) {
     state.mode = m;
+    // Update tab button active states - only the clicked tab gets 'active' class
     document.querySelectorAll('.ge-tab').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    // Show/hide control panels based on which mode is selected
     document.querySelectorAll('.ge-controls').forEach(c => c.classList.toggle('active', c.dataset.for === m));
+    // Update the mode chip text (e.g., "BEZIER", "ELASTIC")
     $('geModeChip').textContent = LABELS[m];
+    // Update the hint text at bottom of canvas
     $('geHint').textContent = HINTS[m];
+    
+    // IMPORTANT: Set data-mode attribute on wrapper for CSS theme switching
+    // This allows CSS to apply different colors based on current mode
+    document.querySelector('.ge-wrap').setAttribute('data-mode', m);
   }
   function wireTabs() {
     document.querySelectorAll('.ge-tab').forEach(b =>
