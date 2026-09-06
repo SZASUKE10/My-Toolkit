@@ -1,12 +1,12 @@
 /* ============================================================
    GRAPH EDITOR STYLESHEET
-   Everything is scoped under #view-graph so it can never
+   Everything is scoped under .ge-wrap container so it can never
    leak into (or get broken by) the rest of your page.
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
 
 /* ---------- design tokens: change colors once, everywhere updates ---------- */
-#view-graph{
+.ge-wrap{
   --ge-ink:#e8edf4; --ge-mut:#8b98ab;
   --ge-amber:#ffb02e; --ge-amber2:#ff8a3d; --ge-cyan:#41e0ff; --ge-coral:#ff5d5d;
   --ge-line:#243040; --ge-line2:#35455c; --ge-panel:#131a24; --ge-panel2:#0d131c;
@@ -23,12 +23,12 @@
 }
 
 /* Two slow-drifting glow blobs behind everything (pure CSS ambience) */
-#view-graph::before,#view-graph::after{
+.ge-wrap::before,.ge-wrap::after{
   content:""; position:absolute; width:620px; height:620px; border-radius:50%;
   filter:blur(95px); pointer-events:none; z-index:0;
 }
-#view-graph::before{background:radial-gradient(circle,#ff9a3d,transparent 60%);opacity:.13;top:-230px;left:-170px;animation:geDrift1 16s ease-in-out infinite alternate;}
-#view-graph::after{background:radial-gradient(circle,#2fd4ff,transparent 60%);opacity:.10;bottom:-250px;right:-150px;animation:geDrift2 19s ease-in-out infinite alternate;}
+.ge-wrap::before{background:radial-gradient(circle,#ff9a3d,transparent 60%);opacity:.13;top:-230px;left:-170px;animation:geDrift1 16s ease-in-out infinite alternate;}
+.ge-wrap::after{background:radial-gradient(circle,#2fd4ff,transparent 60%);opacity:.10;bottom:-250px;right:-150px;animation:geDrift2 19s ease-in-out infinite alternate;}
 @keyframes geDrift1{to{transform:translate(80px,45px) scale(1.08)}}
 @keyframes geDrift2{to{transform:translate(-70px,-55px) scale(1.1)}}
 
@@ -196,5 +196,5 @@
   #geCanvas{height:330px}
 }
 @media (prefers-reduced-motion:reduce){
-  #view-graph::before,#view-graph::after,.ge-eq i,.ge-preview-head h3::before{animation:none}
+  .ge-wrap::before,.ge-wrap::after,.ge-eq i,.ge-preview-head h3::before{animation:none}
 }
