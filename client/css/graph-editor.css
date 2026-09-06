@@ -1,0 +1,200 @@
+/* ============================================================
+   GRAPH EDITOR STYLESHEET
+   Everything is scoped under #view-graph so it can never
+   leak into (or get broken by) the rest of your page.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* ---------- design tokens: change colors once, everywhere updates ---------- */
+#view-graph{
+  --ge-ink:#e8edf4; --ge-mut:#8b98ab;
+  --ge-amber:#ffb02e; --ge-amber2:#ff8a3d; --ge-cyan:#41e0ff; --ge-coral:#ff5d5d;
+  --ge-line:#243040; --ge-line2:#35455c; --ge-panel:#131a24; --ge-panel2:#0d131c;
+  display:block; position:relative; overflow:hidden;
+  padding:clamp(24px,4vw,52px) clamp(16px,4vw,44px) 100px;
+  background-color:#0a0e14;
+  background-image:
+    radial-gradient(circle, rgba(200,220,255,.05) 1px, transparent 1.4px), /* dot grid */
+    radial-gradient(900px 480px at 85% 0%, rgba(65,224,255,.07), transparent 60%),
+    radial-gradient(800px 500px at 0% 100%, rgba(255,154,61,.06), transparent 60%);
+  background-size:26px 26px, auto, auto;
+  color:var(--ge-ink);
+  font-family:'Barlow',sans-serif;
+}
+
+/* Two slow-drifting glow blobs behind everything (pure CSS ambience) */
+#view-graph::before,#view-graph::after{
+  content:""; position:absolute; width:620px; height:620px; border-radius:50%;
+  filter:blur(95px); pointer-events:none; z-index:0;
+}
+#view-graph::before{background:radial-gradient(circle,#ff9a3d,transparent 60%);opacity:.13;top:-230px;left:-170px;animation:geDrift1 16s ease-in-out infinite alternate;}
+#view-graph::after{background:radial-gradient(circle,#2fd4ff,transparent 60%);opacity:.10;bottom:-250px;right:-150px;animation:geDrift2 19s ease-in-out infinite alternate;}
+@keyframes geDrift1{to{transform:translate(80px,45px) scale(1.08)}}
+@keyframes geDrift2{to{transform:translate(-70px,-55px) scale(1.1)}}
+
+.ge-wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto}
+
+/* Staggered entrance animation for the big blocks */
+.ge-head,.ge-main,.ge-transport,.ge-preview{animation:geIn .6s cubic-bezier(.2,.8,.2,1) both}
+.ge-main{animation-delay:.08s}.ge-transport{animation-delay:.16s}.ge-preview{animation-delay:.24s}
+@keyframes geIn{from{opacity:0;transform:translateY(16px)}}
+
+/* ---------- header ---------- */
+.ge-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}
+.ge-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--ge-amber);display:block;margin-bottom:6px}
+.ge-title{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:clamp(28px,4vw,44px);letter-spacing:.02em;margin:0;display:flex;align-items:center;line-height:1}
+.ge-title em{font-style:normal;color:var(--ge-amber);text-shadow:0 0 24px rgba(255,176,46,.45)}
+.ge-badge{font-family:'JetBrains Mono',monospace;font-size:10px;border:1px solid var(--ge-line2);color:var(--ge-cyan);padding:3px 8px;border-radius:6px;margin-left:12px;letter-spacing:.15em}
+.ge-eq{display:inline-flex;gap:3px;align-items:flex-end;height:18px;margin-left:14px}
+.ge-eq i{width:3px;height:6px;background:var(--ge-amber);border-radius:2px;animation:geEq 1s ease-in-out infinite}
+.ge-eq i:nth-child(2){animation-delay:.18s;background:var(--ge-cyan)}
+.ge-eq i:nth-child(3){animation-delay:.36s}
+.ge-eq i:nth-child(4){animation-delay:.54s;background:var(--ge-cyan)}
+@keyframes geEq{0%,100%{height:5px}50%{height:18px}}
+
+/* ---------- mode tabs ---------- */
+.ge-tabs{display:flex;flex-wrap:wrap;gap:8px}
+.ge-tab{display:flex;align-items:center;gap:7px;padding:9px 14px;background:rgba(255,255,255,.03);
+  border:1px solid var(--ge-line);border-radius:10px;color:var(--ge-mut);
+  font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+  cursor:pointer;transition:all .18s ease}
+.ge-tab svg{width:15px;height:15px}
+.ge-tab:hover{color:var(--ge-ink);border-color:var(--ge-line2);transform:translateY(-2px)}
+.ge-tab.active{color:#1c1204;background:linear-gradient(135deg,var(--ge-amber),var(--ge-amber2));
+  border-color:transparent;box-shadow:0 4px 20px rgba(255,176,46,.35);transform:translateY(-2px)}
+
+/* ---------- shared panel look ---------- */
+.ge-panel{background:linear-gradient(180deg,var(--ge-panel),var(--ge-panel2));
+  border:1px solid var(--ge-line);border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04)}
+.ge-main{display:grid;grid-template-columns:1fr 280px;gap:18px}
+
+/* ---------- graph topbar ---------- */
+.ge-graph-topbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--ge-line)}
+.ge-chip{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.18em;color:var(--ge-amber);
+  border:1px solid rgba(255,176,46,.4);padding:4px 10px;border-radius:6px;background:rgba(255,176,46,.08)}
+.ge-readout{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ge-mut)}
+.ge-readout b{color:var(--ge-cyan);font-weight:600;margin-left:4px}
+.ge-toggle{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ge-mut);cursor:pointer;margin-left:auto;letter-spacing:.05em}
+.ge-toggle input{accent-color:var(--ge-cyan)}
+
+/* ---------- graph canvas ---------- */
+.ge-canvas-wrap{position:relative;user-select:none;-webkit-user-select:none}
+.ge-canvas-wrap canvas{display:block;width:100%;touch-action:none} /* touch-action:none = drag works on phones */
+#geCanvas{height:400px;cursor:crosshair}
+.ge-hint{position:absolute;right:12px;bottom:10px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.06em;color:var(--ge-mut);background:rgba(10,14,20,.7);padding:4px 9px;border-radius:6px;
+  border:1px solid var(--ge-line);pointer-events:none}
+
+/* ---------- sidebar ---------- */
+.ge-side{padding:18px 18px 16px;display:flex;flex-direction:column}
+.ge-side-title{font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:.24em;color:var(--ge-mut);margin:0 0 6px}
+.ge-controls{display:none}
+.ge-controls.active{display:block;animation:geIn .35s ease both}
+.ge-ctl-desc{font-size:13px;color:var(--ge-mut);line-height:1.5;margin:8px 0 12px}
+
+.ge-chips{display:flex;flex-wrap:wrap;gap:7px}
+.ge-chipbtn{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.06em;padding:7px 12px;
+  background:#0d141d;border:1px solid var(--ge-line);border-radius:8px;color:var(--ge-ink);cursor:pointer;transition:all .15s ease}
+.ge-chipbtn:hover{border-color:var(--ge-amber);color:var(--ge-amber);transform:translateY(-1px);box-shadow:0 3px 12px rgba(255,176,46,.15)}
+.ge-chipbtn:active{transform:scale(.96)}
+
+/* ---------- sliders (custom-styled range inputs) ---------- */
+.ge-slider{display:block;margin:15px 0}
+.ge-slider .lab{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ge-mut)}
+.ge-slider .lab b{color:var(--ge-amber);font-family:'JetBrains Mono',monospace;font-size:12px}
+.ge-slider input{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:#263140;outline:none;margin-top:9px;cursor:pointer}
+.ge-slider input::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--ge-amber);border:3px solid #0f141c;box-shadow:0 0 10px rgba(255,176,46,.5);transition:transform .12s ease}
+.ge-slider input::-webkit-slider-thumb:hover{transform:scale(1.25)}
+.ge-slider input::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--ge-amber);border:3px solid #0f141c}
+
+/* ---------- OUT / IN segmented toggle ---------- */
+.ge-seg{display:flex;background:#0b1119;border:1px solid var(--ge-line);border-radius:9px;padding:3px;gap:3px;margin:14px 0 4px}
+.ge-seg button{flex:1;padding:7px 0;font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.1em;
+  background:transparent;border:none;border-radius:6px;color:var(--ge-mut);cursor:pointer;transition:all .15s ease}
+.ge-seg button:hover{color:var(--ge-ink)}
+.ge-seg button.active{background:rgba(65,224,255,.14);color:var(--ge-cyan);box-shadow:inset 0 0 0 1px rgba(65,224,255,.35)}
+
+/* ---------- buttons ---------- */
+.ge-btn{font-family:'Chakra Petch',sans-serif;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 14px;background:#111925;border:1px solid var(--ge-line);border-radius:9px;color:var(--ge-ink);
+  cursor:pointer;transition:all .15s ease}
+.ge-btn:hover{border-color:var(--ge-line2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.ge-btn:active{transform:scale(.97)}
+.ge-btn.ghost{background:transparent;color:var(--ge-mut)}
+.ge-btn.ghost:hover{color:var(--ge-coral);border-color:rgba(255,93,93,.4)}
+.ge-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+/* ---------- live formula readout ---------- */
+.ge-formula{margin-top:auto;padding-top:14px;border-top:1px dashed var(--ge-line);
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;color:var(--ge-cyan);word-break:break-word;opacity:.9}
+.ge-formula span{display:block;color:var(--ge-mut);font-size:9.5px;letter-spacing:.2em;margin-bottom:4px}
+
+/* ---------- transport ---------- */
+.ge-transport{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-top:18px;flex-wrap:wrap}
+.ge-play{width:46px;height:46px;border-radius:50%;border:none;flex:none;
+  background:linear-gradient(140deg,var(--ge-amber),var(--ge-amber2));color:#1c1204;
+  display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 20px rgba(255,176,46,.4);transition:transform .15s ease}
+.ge-play:hover{transform:scale(1.08)}
+.ge-play:active{transform:scale(.94)}
+.ge-play svg{width:17px;height:17px;display:none}
+.ge-play .ic-play{display:block}
+.ge-play.playing .ic-play{display:none}
+.ge-play.playing .ic-pause{display:block}
+.ge-iconbtn{width:36px;height:36px;flex:none;border-radius:9px;background:#111925;border:1px solid var(--ge-line);
+  color:var(--ge-mut);display:grid;place-items:center;cursor:pointer;transition:all .15s ease}
+.ge-iconbtn:hover{color:var(--ge-ink);border-color:var(--ge-line2);transform:translateY(-1px)}
+.ge-iconbtn svg{width:14px;height:14px}
+.ge-iconbtn.active{color:var(--ge-cyan);border-color:rgba(65,224,255,.45);box-shadow:0 0 14px rgba(65,224,255,.18)}
+.ge-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ge-ink);flex:none}
+.ge-time small{color:var(--ge-mut)}
+.ge-durbar{position:relative;flex:1;min-width:140px;height:18px;cursor:pointer}
+.ge-durbar .rail{position:absolute;top:50%;left:0;right:0;height:5px;transform:translateY(-50%);
+  background:#212c3b;border-radius:3px;overflow:hidden}
+.ge-durbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--ge-amber),var(--ge-amber2));border-radius:3px}
+.ge-durbar:hover .rail{height:7px}
+.ge-dursel{background:#111925;border:1px solid var(--ge-line);color:var(--ge-ink);border-radius:8px;
+  padding:7px 9px;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;flex:none}
+
+/* ============================================================
+   PREVIEW — slim progress bar with a ball inside.
+   The ball is positioned with style.left = "NN%" from JS.
+   ============================================================ */
+.ge-preview{margin-top:18px}
+.ge-preview-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--ge-line)}
+.ge-preview-head h3{font-family:'Chakra Petch',sans-serif;font-size:11px;letter-spacing:.24em;color:var(--ge-mut);margin:0;display:flex;align-items:center;gap:9px}
+.ge-preview-head h3::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ge-coral);
+  box-shadow:0 0 10px var(--ge-coral);animation:geBlink 1.6s ease-in-out infinite}
+@keyframes geBlink{50%{opacity:.35}}
+.ge-prevval{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--ge-amber)}
+.ge-prevval small{font-size:9px;color:var(--ge-mut);letter-spacing:.15em;margin-right:8px}
+
+.ge-prev-body{padding:22px 34px 14px}
+.ge-prev-track{position:relative;height:12px;border-radius:999px;
+  background:#141d2a;border:1px solid var(--ge-line);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.55)}
+.ge-prev-fill{position:absolute;top:1px;bottom:1px;left:1px;width:0;border-radius:999px;
+  background:linear-gradient(90deg,rgba(255,176,46,.15),rgba(255,176,46,.5))}
+.ge-prev-tick{position:absolute;top:-5px;bottom:-5px;width:2px;border-radius:2px;background:rgba(200,220,255,.3)}
+.ge-prev-tick.zero{left:-1px}
+.ge-prev-tick.hundred{right:-1px}
+.ge-prev-ball{position:absolute;top:50%;left:0;width:22px;height:22px;border-radius:50%;
+  transform:translate(-50%,-50%); /* center the ball on its position */
+  background:radial-gradient(circle at 35% 35%,#fff3d9,#ffcf6e 40%,#ff8a3d);
+  box-shadow:0 0 14px rgba(255,176,46,.75), 0 2px 6px rgba(0,0,0,.5);
+  will-change:left} /* hint to the browser: this moves every frame */
+.ge-prev-ball.over{ /* turns red while overshooting past 0% or 100% */
+  background:radial-gradient(circle at 35% 35%,#ffd9d9,#ff8d8d 40%,#ff5d5d);
+  box-shadow:0 0 16px rgba(255,93,93,.85)}
+.ge-prev-scale{display:flex;justify-content:space-between;margin-top:8px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ge-mut)}
+
+/* ---------- responsive ---------- */
+@media (max-width:920px){
+  .ge-main{grid-template-columns:1fr}
+  #geCanvas{height:330px}
+}
+@media (prefers-reduced-motion:reduce){
+  #view-graph::before,#view-graph::after,.ge-eq i,.ge-preview-head h3::before{animation:none}
+}
